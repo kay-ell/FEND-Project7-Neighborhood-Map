@@ -40,7 +40,7 @@ class Map extends Component {
 
     // display markers
     this.state.venues.forEach(venue => {
-      let contentString = `<div id="content"><h3>${venue.name}</h3><p>${venue.location.address}<br>${venue.location.city}, ${venue.location.state}&nbsp;${venue.location.postalCode}<br>${venue.location.country}</p></div>`
+      let contentString = `<div id="content"><h3>${venue.name}</h3><p>${venue.location.address}<br>${venue.location.city}, ${venue.location.state}&nbsp;${venue.location.postalCode}<br>${venue.location.country}</p><p>${`<a href="https://foursquare.com/v/${venue.id}" target="_blank">Learn More...</a>`}</p></div>`
 
       let marker = new window.google.maps.Marker({
         position: { lat: venue.location.lat, lng: venue.location.lng },
@@ -54,7 +54,16 @@ class Map extends Component {
       // listen for marker click
       marker.addListener('click', function() {
         infowindow.setContent(contentString);
+        marker.setAnimation(window.google.maps.Animation.BOUNCE);
+        window.setTimeout(function() {
+          marker.setAnimation(null);
+        }, 1000);
         infowindow.open(map, marker);
+      })
+
+      map.addListener('click', function() {
+        marker.setAnimation(null);
+        infowindow.close(map, marker);
       })
     });
 
