@@ -28,4 +28,4 @@ This app uses the default serviceWorker that was bootstrapped with create-react-
 ## Resources
 
 * [Coding Session - Google Maps With React JS - by Ryan Waite](https://www.youtube.com/watch?v=5J6fs_BlVC0&feature=youtu.be)
-* [Udacity | Neighborhood Map [5] - Display an InfoWindow when clicking on a Marker - by Elharony](https://www.youtube.com/watch?v=_1RjbT5dIeM)
+* [Udacity | Neighborhood Map - Display an InfoWindow when clicking on a Marker - by Elharony](https://www.youtube.com/watch?v=_1RjbT5dIeM)
