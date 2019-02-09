@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Map from './components/Map';
 import Sidebar from './components/Sidebar';
 import './App.css';
+import './responsive-styles.css';
 
 class App extends Component {
   constructor(props) {
@@ -23,6 +24,7 @@ class App extends Component {
     this.loadPlaces();
   }
 
+  // get Google Maps API
   loadMap() {
     const script = document.createElement('script');
     const API = 'AIzaSyDoLtOi_ugdG-NpBw3oKrGSVL4Xgyj0qy0';
@@ -36,6 +38,7 @@ class App extends Component {
     window.initMap = this.initMap;
   }
 
+  // Create map
   initMap() {
 
     const map = new window.google.maps.Map(document.getElementById('map'), {
@@ -44,11 +47,12 @@ class App extends Component {
     })
 
 
-
+    // create infowindow
     const infowindow = new window.google.maps.InfoWindow();
 
-    // display markers
+    // loop through the venues array and display a marker for each venue
     this.state.venues.forEach(venue => {
+      // create content for each marker to display in the infowindow
       let contentString = `<div id="content"><h3>${venue.name}</h3><p>${venue.location.address}<br>${venue.location.city}, ${venue.location.state}&nbsp;${venue.location.postalCode}<br>${venue.location.country}</p><p>${`<a href="https://foursquare.com/v/${venue.id}" target="_blank">Learn More...</a>`}</p></div>`
 
       let marker = new window.google.maps.Marker({
@@ -64,16 +68,20 @@ class App extends Component {
 
 
 
-      // listen for marker click
+      // listen for marker click and show animation
       marker.addListener('click', function() {
         infowindow.setContent(contentString);
         marker.setAnimation(window.google.maps.Animation.BOUNCE);
         window.setTimeout(function() {
           marker.setAnimation(null);
         }, 1000);
+        map.setZoom(16);
+        map.panTo(marker.getPosition());
+        map.setCenter(marker.getPosition());
         infowindow.open(map, marker);
       })
 
+      // stop marker animation and close infowindow when user clicks anywhere on the map
       map.addListener('click', function() {
         marker.setAnimation(null);
         infowindow.close(map, marker);
@@ -82,10 +90,17 @@ class App extends Component {
 
     });
 
-
+    // set bounds for fit all markers
+    const bounds = new window.google.maps.LatLngBounds();
+    for (let i = 0; i < this.state.markers.length; i++) {
+      this.state.markers[i].setMap(map);
+      bounds.extend(this.state.markers[i].position);
+    }
+    map.fitBounds(bounds);
 
   }
 
+  // get a list of places from Foursquare API with a query
   loadPlaces() {
     let near = 'New York, NY';
     let query = 'museum';
@@ -101,10 +116,11 @@ class App extends Component {
       this.setState({ venues: venues, allVenues: venues }, this.loadMap());
     })
     .catch(error => {
-      console.log('Error! ' + error)
+      window.alert('Error! ' + error)
     });
   }
 
+  // filter the venues based on user input
   filterVenues(query) {
     if (query) {
       let v = this.state.venues.filter(venue => venue.name.toLowerCase().includes(query.toLowerCase()));
@@ -113,13 +129,16 @@ class App extends Component {
         marker.setVisible(false);
       })
 
-      this.setState({ venues: v })
+      this.setState({ venues: v, query: query })
     } else {
-      this.setState({ venues: this.state.allVenues });
-
+      this.setState({ venues: this.state.allVenues, query: '' });
+      this.state.markers.forEach(m => {
+        m.setVisible(true);
+      })
     }
   }
 
+  // open infowindow when user clicks on the venue name in list-view
   clickVenueItem(venue) {
     this.state.markers.map((marker) => {
       if (marker.id === venue.id) {
@@ -138,9 +157,7 @@ class App extends Component {
         clickVenueItem={this.clickVenueItem}
       />
 
-      <Map
-
-      />
+      <Map />
       </div>
     );
   }
